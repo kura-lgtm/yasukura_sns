@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0c0c0c">
+<title>Yasukura Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#0c0c0c;
+  --bg2:#161616;
+  --bg3:#1e1e1e;
+  --bg4:#262626;
+  --bg5:#2e2e2e;
+  --text:#f2efe9;
+  --text2:#a09990;
+  --text3:#5a5248;
+  --border:#252525;
+  --border2:#333;
+  --border3:#444;
+  --vn:#e8622a;
+  --vn2:#f97316;
+  --vn-bg:#1a0e06;
+  --vn-border:#3d1a08;
+  --jp:#3b82f6;
+  --jp2:#60a5fa;
+  --jp-bg:#060f1f;
+  --jp-border:#1e3357;
+  --green:#22c55e;
+  --green-bg:#052010;
+  --amber:#f59e0b;
+  --red:#ef4444;
+  --red-bg:#1a0505;
+  --r:10px;
+  --r-lg:16px;
+  --r-xl:22px;
+}
+html{background:var(--bg);overflow-x:hidden;}
+body{
+  font-family:'Noto Sans JP',sans-serif;
+  color:var(--text);
+  min-height:100dvh;
+  background:var(--bg);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* ── LAYOUT ── */
+.app{
+  max-width:480px;
+  margin:0 auto;
+  min-height:100dvh;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
+
+/* ── HEADER ── */
+.hdr{
+  padding:calc(env(safe-area-inset-top,0px) + 14px) 18px 0;
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:var(--bg);
+}
+.hdr-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:14px;
+}
+.logo{
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  font-weight:500;
+  color:var(--text3);
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+}
+.date-pill{
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  color:var(--text3);
+  background:var(--bg3);
+  border:1px solid var(--border);
+  padding:4px 10px;
+  border-radius:99px;
+  transition:color 0.2s;
+}
+
+/* ── CHANNEL TABS ── */
+.tabs{
+  display:flex;
+  gap:6px;
+  padding-bottom:14px;
+  border-bottom:1px solid var(--border);
+}
+.tab{
+  flex:1;
+  padding:10px 10px 9px;
+  border-radius:var(--r);
+  border:1px solid var(--border);
+  background:var(--bg2);
+  color:var(--text3);
+  font-family:'Noto Sans JP',sans-serif;
+  font-size:11.5px;
+  font-weight:400;
+  cursor:pointer;
+  transition:all 0.18s;
+  text-align:center;
+  line-height:1.35;
+}
+.tab small{
+  display:block;
+  font-size:9.5px;
+  color:var(--text3);
+  margin-top:2px;
+  transition:color 0.18s;
+}
+.tab.vn-on{
+  background:var(--vn-bg);
+  border-color:var(--vn-border);
+  color:var(--vn2);
+  font-weight:500;
+}
+.tab.vn-on small{color:rgba(249,115,22,0.5);}
+.tab.jp-on{
+  background:var(--jp-bg);
+  border-color:var(--jp-border);
+  color:var(--jp2);
+  font-weight:500;
+}
+.tab.jp-on small{color:rgba(96,165,250,0.5);}
+
+/* ── SCROLL BODY ── */
+.body{
+  flex:1;
+  overflow-y:auto;
+  padding:0 16px 120px;
+  -webkit-overflow-scrolling:touch;
+}
+.panel{display:none;}
+.panel.on{display:block;}
+
+/* ── GENERATE BUTTON ── */
+.gen-wrap{padding:18px 0 12px;}
+.gen-btn{
+  width:100%;
+  padding:17px 20px;
+  border-radius:var(--r-lg);
+  border:1px solid var(--border2);
+  background:var(--bg3);
+  color:var(--text);
+  font-family:'Noto Sans JP',sans-serif;
+  font-size:14px;
+  font-weight:500;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:all 0.18s;
+  position:relative;
+  overflow:hidden;
+  letter-spacing:0.01em;
+}
+.gen-btn::before{
+  content:'';position:absolute;inset:0;opacity:0;
+  transition:opacity 0.18s;
+}
+.gen-btn:hover::before{opacity:1;}
+.gen-btn:active{transform:scale(0.98);}
+.gen-btn.vn-mode{border-color:var(--vn-border);background:var(--vn-bg);}
+.gen-btn.vn-mode:hover{border-color:var(--vn);background:var(--vn-bg);}
+.gen-btn.jp-mode{border-color:var(--jp-border);background:var(--jp-bg);}
+.gen-btn.jp-mode:hover{border-color:var(--jp);background:var(--jp-bg);}
+.gen-btn.busy{pointer-events:none;opacity:0.7;}
+.gen-sub{
+  text-align:center;
+  font-size:11px;
+  color:var(--text3);
+  margin-top:8px;
+  font-family:'DM Mono',monospace;
+}
+
+/* ── STATUS ── */
+.status{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 12px;
+  border-radius:var(--r);
+  background:var(--bg3);
+  border:1px solid var(--border);
+  margin-bottom:14px;
+  font-size:11.5px;
+  color:var(--text2);
+  font-family:'DM Mono',monospace;
+}
+.sdot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--text3);flex-shrink:0;
+}
+.sdot.ok{background:var(--green);}
+.sdot.spin{background:var(--amber);animation:pulse 1.4s infinite;}
+.sdot.err{background:var(--red);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* ── NETA CARDS ── */
+.cards{display:flex;flex-direction:column;gap:10px;}
+
+.card{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  overflow:hidden;
+  transition:border-color 0.15s,opacity 0.2s;
+}
+.card:hover{border-color:var(--border2);}
+.card.expanded{border-color:var(--border3);}
+.card.used{opacity:0.38;}
+.card.used .card-head{cursor:default;}
+
+/* stagger */
+.card:nth-child(1){animation:up 0.32s 0.04s both;}
+.card:nth-child(2){animation:up 0.32s 0.10s both;}
+.card:nth-child(3){animation:up 0.32s 0.16s both;}
+.card:nth-child(4){animation:up 0.32s 0.22s both;}
+.card:nth-child(5){animation:up 0.32s 0.28s both;}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.card-head{
+  padding:13px 15px;
+  cursor:pointer;
+  display:flex;gap:10px;align-items:flex-start;
+}
+.card-meta{flex:1;min-width:0;}
+.badge-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:6px;}
+.badge{
+  font-size:9.5px;padding:2px 8px;border-radius:99px;
+  font-weight:500;white-space:nowrap;border:1px solid transparent;
+}
+.c-pol{background:#1c0808;color:#fca5a5;border-color:#7f1d1d;}
+.c-biz{background:#06101f;color:#93c5fd;border-color:#1e3a5f;}
+.c-soc{background:#03180f;color:#86efac;border-color:#14532d;}
+.c-trn{background:#1c1200;color:#fcd34d;border-color:#78350f;}
+.c-gos{background:#1a0610;color:#f9a8d4;border-color:#831843;}
+.c-ene{background:#1a0d00;color:#fdba74;border-color:#7c2d12;}
+.c-tec{background:#0d0a2a;color:#c4b5fd;border-color:#4c1d95;}
+.flag-new{
+  font-size:9px;font-family:'DM Mono',monospace;font-weight:500;
+  background:var(--green-bg);color:var(--green);
+  padding:2px 6px;border-radius:4px;
+}
+.flag-hot{
+  font-size:9px;font-family:'DM Mono',monospace;font-weight:500;
+  background:var(--red-bg);color:#fca5a5;
+  padding:2px 6px;border-radius:4px;
+}
+.flag-used{
+  font-size:9px;font-family:'DM Mono',monospace;
+  background:var(--bg4);color:var(--text3);
+  padding:2px 6px;border-radius:4px;
+}
+.card-title{
+  font-size:13px;font-weight:500;
+  color:var(--text);line-height:1.5;
+}
+.chev{
+  font-size:10px;color:var(--text3);
+  margin-top:3px;flex-shrink:0;
+  transition:transform 0.15s;
+}
+.card.expanded .chev{transform:rotate(180deg);}
+
+/* ── CARD BODY ── */
+.card-body{
+  display:none;
+  border-top:1px solid var(--border);
+  padding:14px 15px;
+}
+.card.expanded .card-body{display:block;}
+
+.sec{
+  font-size:9px;font-weight:500;
+  font-family:'DM Mono',monospace;
+  letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--text3);
+  margin-bottom:6px;margin-top:12px;
+}
+.sec:first-child{margin-top:0;}
+
+.title-list{display:flex;flex-direction:column;gap:5px;}
+.title-item{
+  font-size:12px;color:var(--text);
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--r);padding:7px 10px;line-height:1.45;
+}
+
+.thumb-box{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--r);padding:10px 12px;
+}
+.thumb-main{
+  font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px;
+}
+.thumb-sub{font-size:11px;color:var(--text2);line-height:1.5;}
+
+.steps{display:flex;flex-direction:column;gap:5px;}
+.step{display:flex;gap:9px;align-items:flex-start;}
+.snum{
+  font-size:10px;font-weight:500;font-family:'DM Mono',monospace;
+  color:var(--text3);background:var(--bg4);
+  border-radius:50%;width:18px;height:18px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px;
+}
+.stxt{font-size:12px;color:var(--text2);line-height:1.55;}
+
+.src-row{
+  font-size:10px;color:var(--text3);
+  font-family:'DM Mono',monospace;
+  padding-top:9px;margin-top:9px;
+  border-top:1px solid var(--border);
+}
+
+.act-row{
+  display:flex;gap:6px;flex-wrap:wrap;
+  margin-top:12px;
+}
+.act-btn{
+  font-size:11px;padding:7px 11px;
+  border-radius:var(--r);border:1px solid var(--border2);
+  background:var(--bg3);color:var(--text2);
+  cursor:pointer;font-family:'Noto Sans JP',sans-serif;
+  transition:all 0.15s;white-space:nowrap;
+}
+.act-btn:hover{background:var(--bg4);color:var(--text);}
+.act-btn:active{transform:scale(0.96);}
+.act-btn.pri{
+  border-color:var(--vn-border);
+  color:var(--vn2);background:var(--vn-bg);
+}
+.act-btn.pri.jp{
+  border-color:var(--jp-border);
+  color:var(--jp2);background:var(--jp-bg);
+}
+.act-btn.pri:hover{opacity:0.85;}
+.use-btn{
+  font-size:10px;padding:6px 10px;
+  border-radius:var(--r);border:1px solid var(--border);
+  background:transparent;color:var(--text3);
+  cursor:pointer;font-family:'DM Mono',monospace;
+  transition:all 0.15s;margin-left:auto;
+}
+.use-btn:hover{color:var(--green);border-color:var(--green);}
+.use-btn.done{color:var(--green);border-color:#14532d;background:var(--green-bg);}
+
+/* ── HISTORY ── */
+.hist-section{
+  margin-top:22px;padding-top:16px;
+  border-top:1px solid var(--border);
+}
+.hist-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;
+}
+.hist-label{
+  font-size:10px;font-family:'DM Mono',monospace;
+  color:var(--text3);letter-spacing:0.06em;
+}
+.hist-clear{
+  font-size:10px;color:var(--text3);
+  background:none;border:none;cursor:pointer;
+  font-family:'DM Mono',monospace;
+  padding:2px 6px;border-radius:4px;
+  transition:color 0.15s;
+}
+.hist-clear:hover{color:var(--red);}
+.hist-list{display:flex;flex-direction:column;gap:6px;}
+.hist-item{
+  padding:9px 12px;border-radius:var(--r);
+  background:var(--bg2);border:1px solid var(--border);
+  cursor:pointer;transition:border-color 0.15s;
+}
+.hist-item:hover{border-color:var(--border2);}
+.hist-top{
+  display:flex;align-items:center;gap:7px;margin-bottom:4px;
+}
+.hist-dot{
+  width:6px;height:6px;border-radius:50%;flex-shrink:0;
+}
+.hist-dot.vn{background:var(--vn);}
+.hist-dot.jp{background:var(--jp);}
+.hist-date{
+  font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);
+}
+.hist-count{
+  font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);
+  margin-left:auto;
+}
+.hist-headlines{
+  font-size:11px;color:var(--text3);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  line-height:1.4;
+}
+
+/* ── EMPTY STATE ── */
+.empty{
+  padding:52px 20px;
+  display:flex;flex-direction:column;
+  align-items:center;gap:12px;text-align:center;
+}
+.empty-icon{font-size:44px;opacity:0.15;}
+.empty-ttl{font-size:15px;color:var(--text2);font-weight:500;}
+.empty-sub{font-size:12px;color:var(--text3);line-height:1.7;max-width:280px;}
+
+/* ── LOADING SKELETON ── */
+.skeleton{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:14px 15px;
+  animation:shimmer 1.4s infinite;
+}
+.sk-line{
+  height:11px;border-radius:4px;background:var(--bg4);margin-bottom:8px;
+}
+.sk-line.w80{width:80%;}
+.sk-line.w60{width:60%;}
+.sk-line.w90{width:90%;}
+@keyframes shimmer{0%,100%{opacity:1}50%{opacity:0.5}}
+
+/* ── DOTS LOADER ── */
+.dots{display:inline-flex;gap:4px;align-items:center;}
+.dots span{
+  width:5px;height:5px;border-radius:50%;
+  background:currentColor;animation:bounce 1.1s infinite;
+  display:inline-block;
+}
+.dots span:nth-child(2){animation-delay:0.15s;}
+.dots span:nth-child(3){animation-delay:0.3s;}
+@keyframes bounce{0%,60%,100%{transform:none}30%{transform:translateY(-5px)}}
+
+/* ── BOTTOM BAR ── */
+.btm{
+  position:fixed;bottom:0;left:0;right:0;
+  max-width:480px;margin:0 auto;
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom,0));
+  background:linear-gradient(to top,var(--bg) 70%,transparent);
+  display:flex;gap:6px;z-index:40;
+}
+.btm-btn{
+  flex:1;padding:10px 6px;
+  border-radius:var(--r);border:1px solid var(--border);
+  background:var(--bg2);color:var(--text2);
+  font-family:'Noto Sans JP',sans-serif;font-size:10.5px;
+  cursor:pointer;transition:all 0.15s;text-align:center;
+}
+.btm-btn:hover{background:var(--bg3);color:var(--text);}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  background:var(--bg4);border:1px solid var(--border3);
+  color:var(--text2);font-size:12px;font-family:'DM Mono',monospace;
+  padding:9px 18px;border-radius:99px;
+  opacity:0;transition:opacity 0.2s;
+  pointer-events:none;white-space:nowrap;z-index:999;
+}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-top">
+      <div class="logo">Yasukura Studio</div>
+      <div class="date-pill" id="date-pill">—</div>
+    </div>
+    <div class="tabs">
+      <button class="tab vn-on" id="tab-vn" onclick="switchCh('vn')">
+        やすくら社長
+        <small>日本人向けベトナム解説</small>
+      </button>
+      <button class="tab" id="tab-jp" onclick="switchCh('jp')">
+        Giam Doc Yasukura
+        <small>ベトナム人向け日本解説</small>
+      </button>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <!-- VN Panel -->
+    <div class="panel on" id="panel-vn">
+      <div class="gen-wrap">
+        <button class="gen-btn vn-mode" id="genbtn-vn" onclick="generate('vn')">
+          <span>🔄</span><span>今日のネタを提案する</span>
+        </button>
+        <div class="gen-sub" id="gensub-vn">ベトナム最新ニュースを検索 → 5本を自動生成</div>
+      </div>
+      <div id="st-vn"></div>
+      <div id="cards-vn" class="cards"></div>
+      <div id="hist-vn"></div>
+    </div>
+
+    <!-- JP Panel -->
+    <div class="panel" id="panel-jp">
+      <div class="gen-wrap">
+        <button class="gen-btn jp-mode" id="genbtn-jp" onclick="generate('jp')">
+          <span>🔄</span><span>今日のネタを提案する</span>
+        </button>
+        <div class="gen-sub" id="gensub-jp">日本最新ニュースを検索 → 5本を自動生成</div>
+      </div>
+      <div id="st-jp"></div>
+      <div id="cards-jp" class="cards"></div>
+      <div id="hist-jp"></div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <div class="btm">
+    <button class="btm-btn" onclick="resetCards()">🗑 リセット</button>
+    <button class="btm-btn" onclick="openWeekly()">📅 週間カレンダー ↗</button>
+    <button class="btm-btn" onclick="openBoth()">⚡ 両方まとめて ↗</button>
+  </div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ───── STATE ───── */
+const TODAY = new Date();
+const WD = ['日','月','火','水','木','金','土'];
+const dateStr = `${TODAY.getFullYear()}年${TODAY.getMonth()+1}月${TODAY.getDate()}日（${WD[TODAY.getDay()]}）`;
+const dateShort = `${TODAY.getMonth()+1}/${TODAY.getDate()}（${WD[TODAY.getDay()]}）`;
+document.getElementById('date-pill').textContent = dateShort;
+
+let currentCh = 'vn';
+let cardsData = { vn: [], jp: [] };
+// localStorage keys
+const HIST_KEY = 'ys_hist_v2';
+const USED_KEY = 'ys_used_v2';
+let history = JSON.parse(localStorage.getItem(HIST_KEY) || '[]');
+let usedSet = new Set(JSON.parse(localStorage.getItem(USED_KEY) || '[]'));
+
+function saveHistory() { localStorage.setItem(HIST_KEY, JSON.stringify(history)); }
+function saveUsed()    { localStorage.setItem(USED_KEY, JSON.stringify([...usedSet])); }
+
+/* ───── TAB ───── */
+function switchCh(ch) {
+  currentCh = ch;
+  document.getElementById('panel-vn').className = 'panel' + (ch==='vn'?' on':'');
+  document.getElementById('panel-jp').className = 'panel' + (ch==='jp'?' on':'');
+  document.getElementById('tab-vn').className = 'tab' + (ch==='vn'?' vn-on':'');
+  document.getElementById('tab-jp').className = 'tab' + (ch==='jp'?' jp-on':'');
+  renderHistory(ch);
+}
+
+/* ───── STATUS ───── */
+function setStatus(ch, type, msg) {
+  const el = document.getElementById('st-'+ch);
+  if (!msg) { el.innerHTML=''; return; }
+  const cls = {ok:'ok', spin:'spin', err:'err'}[type] || '';
+  const loader = type==='spin' ? ' <span class="dots"><span></span><span></span><span></span></span>' : '';
+  el.innerHTML = `<div class="status"><div class="sdot ${cls}"></div><span>${msg}${loader}</span></div>`;
+}
+
+/* ───── GENERATE ───── */
+async function generate(ch) {
+  const btn = document.getElementById('genbtn-'+ch);
+  const sub = document.getElementById('gensub-'+ch);
+  const isVN = ch === 'vn';
+
+  btn.classList.add('busy');
+  btn.innerHTML = `<span class="dots"><span></span><span></span><span></span></span>`;
+  setStatus(ch, 'spin', 'ニュースを検索・生成中...');
+  document.getElementById('cards-'+ch).innerHTML = renderSkeletons();
+
+  const systemP = isVN
+    ? `あなたはやすくら社長チャンネル（日本人向けベトナム解説YouTube）のコンテンツプロデューサーです。
+ベトナムの最新ニュースをweb_searchで検索し、今日の動画ネタを5本提案します。
+必ずJSON形式のみで返してください。説明文・マークダウン・コードブロックは不要です。`
+    : `あなたはGiam Doc Yasukuraチャンネル（ベトナム人向け日本解説YouTube）のコンテンツプロデューサーです。
+日本の最新ニュースをweb_searchで検索し、ベトナム人視聴者向けの動画ネタを5本提案します。台本構成は日本語で書いてください。
+必ずJSON形式のみで返してください。説明文・マークダウン・コードブロックは不要です。`;
+
+  const userP = `今日は${dateStr}です。
+${isVN ? 'ベトナム' : '日本'}の本日・今週の最新ニュースをweb_searchで検索して、動画ネタを5本提案してください。
+
+以下のJSONフォーマットで返してください:
+{
+  "items": [
+    {
+      "id": 1,
+      "category": "カテゴリ（例：政治、ビジネス、社会、観光、テック）",
+      "categoryKey": "pol または biz または soc または trn または gos または ene または tec",
+      "isBreaking": true または false,
+      "headline": "ネタのヘッドライン（25字以内）",
+      "titles": ["タイトル案1（30字程度）", "タイトル案2", "タイトル案3"],
+      "thumbnail": {
+        "main": "サムネイルのメインコピー（15字以内）",
+        "sub": "構成の説明（写真・テキスト・演出）"
+      },
+      "steps": [
+        "①冒頭フック：具体的な内容",
+        "②本編前半：具体的な内容",
+        "③本編中盤：具体的な内容",
+        "④本編後半：具体的な内容",
+        "⑤まとめ＆CTA：具体的な内容"
+      ],
+      "source": "ソース名 / YYYY.MM.DD"
+    }
+  ]
+}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemP,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{ role: 'user', content: userP }]
+      })
+    });
+
+    const data = await res.json();
+    let rawText = (data.content || []).filter(b=>b.type==='text').map(b=>b.text).join('');
+    const m = rawText.match(/\{[\s\S]*\}/);
+    if (!m) throw new Error('no json');
+    const parsed = JSON.parse(m[0]);
+    cardsData[ch] = (parsed.items || []).slice(0, 5);
+
+    // 履歴保存
+    history.unshift({
+      ch, date: dateStr, ts: Date.now(),
+      count: cardsData[ch].length,
+      headlines: cardsData[ch].map(i=>i.headline)
+    });
+    if (history.length > 20) history = history.slice(0, 20);
+    saveHistory();
+
+    setStatus(ch, 'ok', `${cardsData[ch].length}本を生成しました — ${dateShort}`);
+    renderCards(ch);
+    renderHistory(ch);
+
+  } catch(e) {
+    console.error(e);
+    // フォールバック: サンプルデータ
+    cardsData[ch] = sampleData(ch);
+    setStatus(ch, 'err', 'API接続エラー — サンプルデータを表示中');
+    renderCards(ch);
+  }
+
+  btn.classList.remove('busy');
+  btn.innerHTML = `<span>🔄</span><span>今日のネタを提案する</span>`;
+  sub.textContent = isVN
+    ? 'ベトナム最新ニュースを検索 → 5本を自動生成'
+    : '日本最新ニュースを検索 → 5本を自動生成';
+}
+
+/* ───── SKELETON ───── */
+function renderSkeletons() {
+  return [1,2,3,4,5].map(()=>`
+    <div class="skeleton">
+      <div class="sk-line w60"></div>
+      <div class="sk-line w90"></div>
+      <div class="sk-line w80"></div>
+    </div>`).join('');
+}
+
+/* ───── RENDER CARDS ───── */
+const catCls = {pol:'c-pol',biz:'c-biz',soc:'c-soc',trn:'c-trn',gos:'c-gos',ene:'c-ene',tec:'c-tec'};
+
+function renderCards(ch) {
+  const wrap = document.getElementById('cards-'+ch);
+  const items = cardsData[ch];
+  const isVN = ch === 'vn';
+
+  if (!items || items.length === 0) {
+    wrap.innerHTML = `<div class="empty">
+      <div class="empty-icon">📭</div>
+      <div class="empty-ttl">ネタがありません</div>
+      <div class="empty-sub">「今日のネタを提案する」を押してください</div>
+    </div>`;
+    return;
+  }
+
+  wrap.innerHTML = items.map(item => {
+    const key = `${ch}_${item.id}_${dateShort}`;
+    const isUsed = usedSet.has(key);
+    const cc = catCls[item.categoryKey] || 'c-biz';
+    const flag = item.isBreaking ? '<span class="flag-hot">🔥 速報</span>' : '<span class="flag-new">NEW</span>';
+    const usedFlag = isUsed ? '<span class="flag-used">✓ 使用済み</span>' : '';
+    const priCls = isVN ? 'pri' : 'pri jp';
+
+    return `<div class="card${isUsed?' used':''}" id="card-${ch}-${item.id}">
+      <div class="card-head" onclick="toggleCard('${ch}',${item.id})">
+        <div class="card-meta">
+          <div class="badge-row">
+            <span class="badge ${cc}">${item.category}</span>
+            ${flag}
+            ${usedFlag}
+          </div>
+          <div class="card-title">${item.headline}</div>
+        </div>
+        <div class="chev">▼</div>
+      </div>
+      <div class="card-body">
+        <div class="sec">タイトル案</div>
+        <div class="title-list">
+          ${item.titles.map(t=>`<div class="title-item">「${t}」</div>`).join('')}
+        </div>
+        <div class="sec">サムネイル文言</div>
+        <div class="thumb-box">
+          <div class="thumb-main">「${item.thumbnail.main}」</div>
+          <div class="thumb-sub">${item.thumbnail.sub}</div>
+        </div>
+        <div class="sec">台本構成</div>
+        <div class="steps">
+          ${item.steps.map((s,i)=>`<div class="step"><div class="snum">${i+1}</div><div class="stxt">${s}</div></div>`).join('')}
+        </div>
+        <div class="src-row">📰 ${item.source}</div>
+        <div class="act-row">
+          <button class="act-btn ${priCls}" onclick="openScript('${ch}',${item.id})">台本を生成 ↗</button>
+          <button class="act-btn" onclick="openTitles('${ch}',${item.id})">タイトル10案 ↗</button>
+          <button class="act-btn" onclick="openThumb('${ch}',${item.id})">サムネ詳細 ↗</button>
+          <button class="use-btn${isUsed?' done':''}" onclick="toggleUsed('${ch}',${item.id})" id="usebtn-${ch}-${item.id}">
+            ${isUsed ? '✓ 使用済み' : '使用済みにする'}
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ───── CARD TOGGLE ───── */
+function toggleCard(ch, id) {
+  const el = document.getElementById(`card-${ch}-${id}`);
+  if (el.classList.contains('used') && !el.classList.contains('expanded')) return;
+  const was = el.classList.contains('expanded');
+  document.querySelectorAll('.card.expanded').forEach(c => c.classList.remove('expanded'));
+  if (!was) el.classList.add('expanded');
+}
+
+/* ───── USED TOGGLE ───── */
+function toggleUsed(ch, id) {
+  const key = `${ch}_${id}_${dateShort}`;
+  const card = document.getElementById(`card-${ch}-${id}`);
+  const btn = document.getElementById(`usebtn-${ch}-${id}`);
+  if (usedSet.has(key)) {
+    usedSet.delete(key);
+    card.classList.remove('used');
+    btn.className = 'use-btn';
+    btn.textContent = '使用済みにする';
+    // badge-row から used-flag 削除
+    const br = card.querySelector('.badge-row');
+    const uf = br.querySelector('.flag-used');
+    if (uf) uf.remove();
+    showToast('使用済みを解除しました');
+  } else {
+    usedSet.add(key);
+    card.classList.add('used');
+    btn.className = 'use-btn done';
+    btn.textContent = '✓ 使用済み';
+    const br = card.querySelector('.badge-row');
+    if (!br.querySelector('.flag-used')) {
+      const sp = document.createElement('span');
+      sp.className = 'flag-used';
+      sp.textContent = '✓ 使用済み';
+      br.appendChild(sp);
+    }
+    showToast('使用済みにしました');
+  }
+  saveUsed();
+}
+
+/* ───── ACTION OPENERS ───── */
+function openScript(ch, id) {
+  const item = cardsData[ch].find(i=>i.id===id);
+  if (!item) return;
+  const chName = ch==='vn' ? 'やすくら社長' : 'Giam Doc Yasukura';
+  const q = `${chName}チャンネル用に「${item.headline}」の動画台本を7〜8分尺で作成してください。冒頭フック・本編・まとめ・CTAを含めてください。`;
+  window.open(`https://claude.ai/new?q=${encodeURIComponent(q)}`, '_blank');
+}
+function openTitles(ch, id) {
+  const item = cardsData[ch].find(i=>i.id===id);
+  if (!item) return;
+  const q = `「${item.headline}」のYouTubeタイトルを追加で10案出してください。バズりやすい表現で、数字・驚き・疑問系を混ぜて。`;
+  window.open(`https://claude.ai/new?q=${encodeURIComponent(q)}`, '_blank');
+}
+function openThumb(ch, id) {
+  const item = cardsData[ch].find(i=>i.id===id);
+  if (!item) return;
+  const q = `「${item.headline}」のYouTubeサムネイル案を3パターン詳しく提案してください。テキスト・色・顔の表情・背景の構成を具体的に。`;
+  window.open(`https://claude.ai/new?q=${encodeURIComponent(q)}`, '_blank');
+}
+
+/* ───── HISTORY ───── */
+function renderHistory(ch) {
+  const el = document.getElementById('hist-'+ch);
+  const items = history.filter(h=>h.ch===ch).slice(0, 7);
+  if (!items.length) { el.innerHTML=''; return; }
+
+  el.innerHTML = `<div class="hist-section">
+    <div class="hist-hd">
+      <div class="hist-label">過去の提案履歴</div>
+      <button class="hist-clear" onclick="clearHistory('${ch}')">履歴を削除</button>
+    </div>
+    <div class="hist-list">
+      ${items.map((h,idx)=>`
+        <div class="hist-item" onclick="restoreHistory(${idx},'${ch}')">
+          <div class="hist-top">
+            <div class="hist-dot ${h.ch}"></div>
+            <div class="hist-date">${h.date}</div>
+            <div class="hist-count">${h.count}本</div>
+          </div>
+          <div class="hist-headlines">${h.headlines.join(' · ')}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function clearHistory(ch) {
+  history = history.filter(h=>h.ch!==ch);
+  saveHistory();
+  renderHistory(ch);
+  showToast('履歴を削除しました');
+}
+
+function restoreHistory(idx, ch) {
+  showToast('再生成するには「今日のネタを提案する」を押してください');
+}
+
+/* ───── RESET ───── */
+function resetCards() {
+  cardsData[currentCh] = [];
+  renderCards(currentCh);
+  setStatus(currentCh, '', '');
+  showToast('リセットしました');
+}
+
+/* ───── BOTTOM ACTIONS ───── */
+function openWeekly() {
+  const chName = currentCh==='vn' ? 'やすくら社長' : 'Giam Doc Yasukura';
+  const q = `${chName}チャンネル向けに今週（月〜日）の週間コンテンツカレンダーを日本語で作成してください。各日にネタ・タイトル案・投稿ベストタイムも含めてください。`;
+  window.open(`https://claude.ai/new?q=${encodeURIComponent(q)}`, '_blank');
+}
+function openBoth() {
+  const q = `${dateStr}の最新ニュースから、やすくら社長（日本人向けベトナム解説）とGiam Doc Yasukura（ベトナム人向け日本解説）の両チャンネル向けに、コンテンツネタを5本ずつ日本語で提案してください。タイトル案3本・サムネ文言・台本構成を含めてください。`;
+  window.open(`https://claude.ai/new?q=${encodeURIComponent(q)}`, '_blank');
+}
+
+/* ───── TOAST ───── */
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 2000);
+}
+
+/* ───── SAMPLE FALLBACK ───── */
+function sampleData(ch) {
+  if (ch === 'vn') return [
+    {id:1,category:'政治',categoryKey:'pol',isBreaking:true,
+     headline:'国会選挙：共産党が96%獲得',
+     titles:['共産党96%制覇！新首相は誰に？ビジネス環境を読む','投票率99.7%の選挙ってどんなもの？ベトナム政治を本音解説','新首相選出へ──今が日系企業の動くタイミング'],
+     thumbnail:{main:'共産党96%獲得！',sub:'国会議事堂 ＋「投票率99.7%」＋ 衝撃リアクション顔'},
+     steps:['冒頭：投票率99.7%の選挙が持つ意味を正直に説明','選挙結果：500議席中482議席の構造を解説','トー・ラム体制完成：書記長＋国家主席の権力集中','ビジネス示唆：政治サイクル前半＝チャンス期','まとめ：今がベトナムで動く最良タイミングの理由'],
+     source:'日本経済新聞 / 本日'},
+    {id:2,category:'エネルギー',categoryKey:'ene',isBreaking:true,
+     headline:'出光系製油所「5月末まで操業可能」',
+     titles:['出光のベトナム製油所が綱渡り操業中！中東危機が現地を直撃','原油高でガソリン3割値上がり──在住日本人の生活が変わった','日系製油所の苦境から読むベトナムエネルギー問題の深層'],
+     thumbnail:{main:'ガソリン3割値上がり！',sub:'製油所写真 ＋「5月末まで」カウントダウン ＋ 赤テキスト'},
+     steps:['冒頭：ベトナムのガソリンスタンドで今何が起きているか','出光製油所の現状：原油確保問題と5月末という期限の意味','中東危機→アジア直撃の構造：ホルムズ海峡からベトナムまで','在住者・日系企業への影響：物流・移動・製造コストの変化','まとめ：エネルギーを制する者がビジネスを制する時代に'],
+     source:'日本経済新聞 / 本日'},
+    {id:3,category:'ビジネス',categoryKey:'biz',isBreaking:false,
+     headline:'フジマート：50店舗へ出店加速',
+     titles:['住友商事フジマートがベトナムで爆速拡大！現地の反応は？','日本のスーパーがベトナムで本気になった理由を解説','フジマートvsビンマート、ベトナム人はどっちを選ぶ？'],
+     thumbnail:{main:'日本スーパーが50店舗へ！',sub:'フジマート店内写真 ＋「2028年50店舗」テキスト強調'},
+     steps:['冒頭：ベトナムのスーパーマーケット市場の現状','フジマートの戦略：小型店モデルで出店加速する背景','現地消費者の反応：価格帯・品質・どんな客層が来るか','競合比較：AEON・ロッテマートとの差別化ポイント','日系ビジネスチャンス：テナント・仕入れ業者の参入余地'],
+     source:'日本経済新聞 / 今週'},
+    {id:4,category:'テック',categoryKey:'tec',isBreaking:false,
+     headline:'AIでベトナムITが脱下請けへ',
+     titles:['ベトナムITがAIで下請けを卒業！世界市場に打って出る話','日本のオフショア先が自社プロダクトを持ち始めた現実','ベトナムIT革命：安い労働力から高付加価値へ転換中'],
+     thumbnail:{main:'脱下請け！ベトナムITが変わる',sub:'ハノイIT企業オフィス ＋「AI×脱下請け」＋ 上昇矢印演出'},
+     steps:['冒頭：日本が発注してきたオフショア先が今まさに変わっている','現状整理：ベトナムIT産業の規模・主要プレイヤー・日系との関係','AIによる転換：コーディングAIで自社開発に踏み出した背景','日系企業への影響：安く作ってもらうモデルの終焉と新協業','まとめ：ベトナムは安い工場ではなく競合になりつつある'],
+     source:'poste-vn.com / 2026.04.15'},
+    {id:5,category:'社会',categoryKey:'soc',isBreaking:false,
+     headline:'円安＋物価上昇で「ベトナムは安くない」',
+     titles:['ベトナムって安い国じゃなくなってた。円安＋インフレで財布がやばい','日本円でベトナムに住む人が知っておくべき物価の現実2026年版','5年前と比べてベトナムの物価はどう変わった？数字で語る'],
+     thumbnail:{main:'ベトナムは安くない！2026年版',sub:'ホーチミンの屋台 ＋「物価31%UP」テキスト ＋ 円安グラフ'},
+     steps:['冒頭：ベトナムは物価が安いから生活しやすい──それ今でも本当？','データ紹介：円安31%高＋ベトナム国内インフレの二重パンチ','具体的な変化：食費・家賃・交通費・日本食レストランの推移','在住者の工夫：今でも賢く生活する方法・節約術・現地化','まとめ：それでもベトナムに住む価値はある、ただし戦略が必要'],
+     source:'kiberin.com / 2026.02'}
+  ];
+  return [
+    {id:1,category:'企業',categoryKey:'biz',isBreaking:true,
+     headline:'ノジマが日立白物家電を買収',
+     titles:['日立が冷蔵庫・洗濯機をやめる！？日本大企業の"捨てる経営"とは','ノジマが日立家電を買収──ベトナム人が知る日本式ビジネス戦略','日立ブランドの家電が消える日──「選択と集中」を徹底解説'],
+     thumbnail:{main:'日立が家電を手放した！',sub:'日立・ノジマロゴ ＋「売却決定！」テキスト ＋ 驚き顔リアクション'},
+     steps:['冒頭：日立の冷蔵庫ベトナムでも使ってる人いますよね、その事業が売られます','ニュース概要：ノジマへの白物家電売却の経緯と金額感','選択と集中とは：弱いものを切り捨て強いものに集中する日本式経営','日立の新たな姿：鉄道・電力・インフラ・デジタルに集中する世界企業へ','まとめ：捨てることで強くなる──ベトナム企業も学べる逆転発想'],
+     source:'日経CNBC / 本日'},
+    {id:2,category:'政治',categoryKey:'pol',isBreaking:false,
+     headline:'高市早苗政権「サナエノミクス」とは',
+     titles:['日本の首相が変わった！高市政権でベトナムはどう変わる？','サナエノミクスってなに？日本の新経済政策を5分で解説','日本の政治が大きく動いた──高市政権でベトナム人が知るべきこと'],
+     thumbnail:{main:'日本に新首相！ベトナムへの影響',sub:'国会議事堂写真 ＋「サナエノミクス」テキスト ＋ 日越国旗'},
+     steps:['冒頭：日本の政治が大きく変わった。ベトナムに住む人にも関係します','高市政権の誕生：自民党総裁選から首相就任までをシンプルに整理','サナエノミクスとは：積極財政・防衛強化・科学技術投資の3本柱','日越関係への影響：ODA・防衛協力・経済連携の方向性','まとめ：日本で働く・学ぶ・ビジネスするベトナム人に何が変わるか'],
+     source:'Bloomberg / 時事通信 / 2026.04'},
+    {id:3,category:'社会',categoryKey:'soc',isBreaking:false,
+     headline:'日本の排出量取引制度が4月スタート',
+     titles:['日本でCO2が「お金」になった！排出量取引制度を分かりやすく解説','炭素を排出したら罰金、削減したら儲かる──日本の新ルールがベトナムに来る日','日本の脱炭素義務化、ベトナム企業の取引先にも影響が出る理由'],
+     thumbnail:{main:'CO2が売り買いできる時代に！',sub:'工場の煙突 ＋「2026年4月スタート」テキスト ＋ お金アイコン演出'},
+     steps:['冒頭：2026年4月1日、日本で大きな制度が始まった。CO2を売り買いする仕組みです','排出量取引とは：キャップ＆トレードの仕組みをシンプルに図解風解説','対象企業・スケジュール：どんな会社が対象か・罰則・段階的な拡大計画','ベトナム企業への影響：日系サプライチェーンに組み込まれる企業はグリーン対応が必須に','まとめ：環境対応はコストではなくビジネスチャンスになる時代が来た'],
+     source:'時事ドットコム / 2026.04.01'},
+    {id:4,category:'観光',categoryKey:'trn',isBreaking:false,
+     headline:'GW直前！日本春旅行の穴場スポット',
+     titles:['GW前の日本が一番空いている！ベトナム人が知らない春旅行の黄金期','花見が終わった後の日本が最高な理由──穴場スポットを現地民が公開','4月後半〜5月初旬の日本旅行、実は最強だった'],
+     thumbnail:{main:'GW前が日本旅行の最強シーズン！',sub:'日本の春の自然写真 ＋「混雑ゼロ」テキスト ＋ ベトナム人旅行者イメージ'},
+     steps:['冒頭：今日本の観光地は何が起きているか、現地から報告します','GW前のメリット：混雑・価格・天気のすべてがベストな理由','おすすめ穴場スポット：観光客が少なく映える場所を3〜4か所紹介','ベトナム人がやりがちな失敗：予約・現金・マナーの注意点','締め：GW直前は航空券が上がる！今すぐ取ってください'],
+     source:'各種メディア / 2026.04'},
+    {id:5,category:'ゴシップ',categoryKey:'gos',isBreaking:false,
+     headline:'カンヌ映画祭に日本人監督5本選出',
+     titles:['カンヌ映画祭2026に日本人監督が5本！ベトナム人は日本映画を知ってる？','Kドラより日本映画が熱い！カンヌを席巻する是枝・濱口を徹底解説','世界が認めた日本映画2026──ベトナム人なら絶対観てほしい作品たち'],
+     thumbnail:{main:'日本映画がカンヌで5本選出！',sub:'カンヌ映画祭ロゴ ＋ 日の丸 ＋「世界が注目！」テキスト'},
+     steps:['冒頭：世界3大映画祭のカンヌで今年日本が大躍進しています','ラインナップ紹介：5作品の内容と各監督のプロフィール','是枝・濱口の魅力：なぜ世界で評価されるかをベトナム人向けに解説','日本映画とKドラの違い：静けさ・間・リアリズムの美学','まとめ＆おすすめ：まずこれを観てください！'],
+     source:'The Hollywood Reporter Japan / 2026.04'}
+  ];
+}
+
+/* ───── INIT ───── */
+renderHistory('vn');
+</script>
+</body>
+</html>
